@@ -46,10 +46,10 @@ bool CollisionDetection::RayBoxIntersection(const Ray&r, const Vector3& boxPos, 
 
 	for (int i = 0; i < 3; i++) {
 		if (rayDir[i] > 0) {
-			tVals[i] = (boxMin[i] - rayPos[i] / rayDir[i]);
+			tVals[i] = (boxMin[i] - rayPos[i]) / rayDir[i];
 		}
 		else if (rayDir[i] < 0) {
-			tVals[i] = (boxMax[i] - rayPos[i] / rayDir[i]);
+			tVals[i] = (boxMax[i] - rayPos[i]) / rayDir[i];
 		}
 	}
 
