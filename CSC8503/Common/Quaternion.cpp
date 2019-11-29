@@ -218,15 +218,15 @@ Matrix3 Quaternion::ToMatrix3() const {
 	float xw = x * w;
 
 	mat.array[0] = 1 - 2 * yy - 2 * zz;
-	mat.array[1] = 2 * xy + 2 * zw;
-	mat.array[2] = 2 * xz - 2 * yw;
+	mat.array[1] = 2 * xy - 2 * zw;
+	mat.array[2] = 2 * xz + 2 * yw;
 
-	mat.array[3] = 2 * xy - 2 * zw;
+	mat.array[3] = 2 * xy + 2 * zw;
 	mat.array[4] = 1 - 2 * xx - 2 * zz;
-	mat.array[5] = 2 * yz + 2 * xw;
+	mat.array[5] = 2 * yz - 2 * xw;
 
-	mat.array[6] = 2 * xz + 2 * yw;
-	mat.array[7] = 2 * yz - 2 * xw;
+	mat.array[6] = 2 * xz - 2 * yw;
+	mat.array[7] = 2 * yz + 2 * xw;
 	mat.array[8] = 1 - 2 * xx - 2 * yy;
 
 	return mat;
@@ -246,15 +246,15 @@ Matrix4 Quaternion::ToMatrix4() const {
 	float xw = x * w;
 
 	mat.array[0] = 1 - 2 * yy - 2 * zz;
-	mat.array[1] = 2 * xy + 2 * zw;
-	mat.array[2] = 2 * xz - 2 * yw;
+	mat.array[1] = 2 * xy - 2 * zw;
+	mat.array[2] = 2 * xz + 2 * yw;
 
-	mat.array[4] = 2 * xy - 2 * zw;
+	mat.array[4] = 2 * xy + 2 * zw;
 	mat.array[5] = 1 - 2 * xx - 2 * zz;
-	mat.array[6] = 2 * yz + 2 * xw;
+	mat.array[6] = 2 * yz - 2 * xw;
 
-	mat.array[8] = 2 * xz + 2 * yw;
-	mat.array[9] = 2 * yz - 2 * xw;
+	mat.array[8] = 2 * xz - 2 * yw;
+	mat.array[9] = 2 * yz + 2 * xw;
 	mat.array[10] = 1 - 2 * xx - 2 * yy;
 
 	return mat;

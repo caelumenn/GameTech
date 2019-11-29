@@ -159,7 +159,28 @@ a particular pair will only be added once, so objects colliding for
 multiple frames won't flood the set with duplicates.
 */
 void PhysicsSystem::BasicCollisionDetection() {
+	std::vector < GameObject* >::const_iterator first;
+	std::vector < GameObject* >::const_iterator last;
+	gameWorld.GetObjectIterators(first, last);
 
+	for (auto i = first; i != last; ++i) {
+		if ((*i)->GetPhysicsObject() == nullptr) {
+			continue;
+
+		}
+		for (auto j = i + 1; j != last; ++j) {
+			if ((*j)->GetPhysicsObject() == nullptr) {
+				continue;
+
+			}
+			CollisionDetection::CollisionInfo info;
+			if (CollisionDetection::ObjectIntersection(*i, *j, info)) {
+				std::cout << " Collision between " << (*i)->GetName() << " and " << (*j)->GetName() << std::endl;
+				info.framesLeft = numCollisionFrames;
+				allCollisions.insert(info);
+			}
+		}
+	}
 }
 
 /*
@@ -224,6 +245,16 @@ void PhysicsSystem::IntegrateAccel(float dt) {
 
 		linearVel += accel * dt;
 		object->SetLinearVelocity(linearVel);
+
+		Vector3 torque = object->GetTorque();
+		Vector3 angVel = object->GetAngularVelocity();
+
+		object->UpdateInertiaTensor();
+
+		Vector3 angAccel = object->GetInertiaTensor() * torque;
+
+		angVel += angAccel * dt;
+		object->SetAngularVelocity(angVel);
 	}
 }
 /*
@@ -253,6 +284,17 @@ void PhysicsSystem::IntegrateVelocity(float dt) {
 
 		linearVel = linearVel * frameDamping;
 		object->SetLinearVelocity(linearVel);
+
+		Quaternion orientation = transform.GetLocalOrientation();
+		Vector3 angVel = object->GetAngularVelocity();
+
+		orientation = orientation + (Quaternion(angVel * dt * 0.5f, 0.0f) * orientation);
+		orientation.Normalise();
+
+		transform.SetLocalOrientation(orientation);
+
+		angVel = angVel * frameDamping;
+		object->SetAngularVelocity(angVel);
 	}
 }
 
