@@ -209,7 +209,6 @@ bool CollisionDetection::AABBIntersection(const AABBVolume& volumeA, const Trans
 			if (distances[i] < penetration) {
 				penetration = distances[i];
 				bestAxis = faces[i];
-
 			}
 		}
 		collisionInfo.AddContactPoint(Vector3(), Vector3(), bestAxis, penetration);
@@ -230,9 +229,10 @@ bool CollisionDetection::SphereIntersection(const SphereVolume& volumeA, const T
 	if (deltaLength < radii) {
 		float penetration = (radii - deltaLength);
 		Vector3 normal = delta.Normalised();
-		Vector3 collisionPoint = worldTransformA.GetWorldPosition() + (normal * (volumeA.GetRadius() - (penetration * 0.5f)));
 		//Vector3 collisionPointB = worldTransformB.GetWorldPosition() + (normal * (volumeB.GetRadius() - (penetration * 0.5f)));
-		collisionInfo.AddContactPoint(collisionPoint, collisionPoint, normal, penetration);
+		Vector3 localA = normal * volumeA.GetRadius();
+		Vector3 localB = -normal * volumeB.GetRadius();
+		collisionInfo.AddContactPoint(localA, localB, normal, penetration);
 		return true;// we ’re colliding !
 	}
 	return false;
@@ -243,7 +243,7 @@ bool CollisionDetection::AABBSphereIntersection(const AABBVolume& volumeA, const
 	const SphereVolume& volumeB, const Transform& worldTransformB, CollisionInfo& collisionInfo) {
 	Vector3 boxSize = volumeA.GetHalfDimensions();
 	
-	Vector3 delta = worldTransformB.GetWorldPosition() -worldTransformA.GetWorldPosition();
+	Vector3 delta = worldTransformB.GetWorldPosition() - worldTransformA.GetWorldPosition();
 	
 	Vector3 closestPointOnBox = Maths::Clamp(delta, -boxSize, boxSize);
 	Vector3 localPoint = delta - closestPointOnBox;

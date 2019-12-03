@@ -166,12 +166,10 @@ void PhysicsSystem::BasicCollisionDetection() {
 	for (auto i = first; i != last; ++i) {
 		if ((*i)->GetPhysicsObject() == nullptr) {
 			continue;
-
 		}
 		for (auto j = i + 1; j != last; ++j) {
 			if ((*j)->GetPhysicsObject() == nullptr) {
 				continue;
-
 			}
 			CollisionDetection::CollisionInfo info;
 			if (CollisionDetection::ObjectIntersection(*i, *j, info)) {
@@ -197,13 +195,14 @@ void PhysicsSystem::ImpulseResolveCollision(GameObject& a, GameObject& b, Collis
 	Transform& transformA = a.GetTransform();
 	Transform& transformB = b.GetTransform();
 
-	float totalMass = physA -> GetInverseMass() + physB -> GetInverseMass();
-
+	float totalMass = physA->GetInverseMass() + physB->GetInverseMass();
+	
 	//Separate them out using projection
 	transformA.SetWorldPosition(transformA.GetWorldPosition() - (p.normal * p.penetration * (physA->GetInverseMass() / totalMass)));
-	transformB.SetWorldPosition(transformB.GetWorldPosition() - (p.normal * p.penetration * (physB->GetInverseMass() / totalMass)));
-	Vector3 relativeA = p.localA;
-	Vector3 relativeB = p.localB;
+	transformB.SetWorldPosition(transformB.GetWorldPosition() + (p.normal * p.penetration * (physB->GetInverseMass() / totalMass)));
+	
+	Vector3 relativeA = p.localA;// -transformA.GetWorldPosition();
+	Vector3 relativeB = p.localB;// -transformB.GetWorldPosition();
 
 	Vector3 angVelocityA = Vector3::Cross(physA->GetAngularVelocity(), relativeA);
 	Vector3 angVelocityB = Vector3::Cross(physB->GetAngularVelocity(), relativeB);
@@ -212,6 +211,14 @@ void PhysicsSystem::ImpulseResolveCollision(GameObject& a, GameObject& b, Collis
 	Vector3 fullVelocityB = physB->GetLinearVelocity() + angVelocityB;
 
 	Vector3 contactVelocity = fullVelocityB - fullVelocityA;
+
+	if (Vector3::Dot(contactVelocity, p.normal) > 0) {
+		return;
+	}
+
+	if (totalMass == 0.0f) {
+		return;
+	}
 
 	float impulseForce = Vector3::Dot(contactVelocity, p.normal);
 
@@ -320,6 +327,7 @@ void PhysicsSystem::IntegrateVelocity(float dt) {
 		Vector3 position = transform.GetLocalPosition();
 		Vector3 linearVel = object->GetLinearVelocity();
 		position += linearVel * dt;
+		
 		transform.SetLocalPosition(position);
 		transform.SetWorldPosition(position);//new
 
