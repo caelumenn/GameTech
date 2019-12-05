@@ -8,8 +8,8 @@ namespace NCL {
 			virtual ~State() {}
 			virtual void Update() = 0; //Pure virtual base class
 		};
-
 		typedef void(*StateFunc)(void*);
+		//typedef void(*StateFunc)(void*, void*);
 
 		class GenericState : public State		{
 		public:

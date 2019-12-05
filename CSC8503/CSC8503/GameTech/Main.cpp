@@ -19,6 +19,7 @@ void TestStateMachine() {
 	StateMachine* testMachine = new StateMachine();
 
 	int someData = 0;
+	bool aData = false;
 
 	StateFunc AFunc = [](void* data) {
 		int* realData = (int*)data;
@@ -31,24 +32,41 @@ void TestStateMachine() {
 		std::cout << "In State B!" << std::endl;
 	};
 
+	StateFunc CFunc = [](void* data) {
+		bool* realData = (bool*)data;
+		//(*realData) = !(*realData);
+		std::cout << " In State C!" << std::endl;
+	};
+
 	GenericState* stateA = new GenericState(AFunc, (void*)&someData);
 	GenericState* stateB = new GenericState(BFunc, (void*)&someData);
+	GenericState* stateC = new GenericState(CFunc, (void*)&aData);
 	testMachine->AddState(stateA);
 	testMachine->AddState(stateB);
-	GenericTransition <int&, int>* transitionA =
-		new GenericTransition <int&, int>(GenericTransition <int&, int >::GreaterThanTransition, someData, 10, stateA, stateB); // if greater than 10 , A to B
+	testMachine->AddState(stateC);
 
-	GenericTransition <int&, int >* transitionB =
-		new GenericTransition <int&, int>(GenericTransition <int&, int>::EqualsTransition, someData, 0, stateB, stateA); // if equals 0 , B to A
+	GenericTransition<int&, int>* transitionA =
+		new GenericTransition <int&, int>(GenericTransition<int&, int>::GreaterThanTransition, someData, 10, stateA, stateB); // if greater than 10 , A to B
 
+	GenericTransition<int&, int>* transitionB =
+		new GenericTransition <int&, int>(GenericTransition<int&, int>::EqualsTransition, someData, 0, stateB, stateA); // if equals 0 , B to A
+	
+	GenericTransition<bool&, bool>* transitionC =
+		new GenericTransition <bool&, bool>(GenericTransition<bool&, bool>::EqualsTransition, aData, false, stateA, stateC);
+	
+	GenericTransition<bool&, bool>* transitionD =
+		new GenericTransition <bool&, bool>(GenericTransition<bool&, bool>::EqualsTransition, aData, true, stateC, stateA);
+	
 	testMachine->AddTransition(transitionA);
 	testMachine->AddTransition(transitionB);
+	testMachine->AddTransition(transitionC);
+	testMachine->AddTransition(transitionD);
 
-	for (int i = 0; i < 100; ++i) {
+	for (int i = 0; i < 300; ++i) {
 		testMachine->Update(); // run the state machine !
+		aData = !aData;
 	}
 	delete testMachine;
-
 }
 
 void TestNetworking() {
@@ -85,7 +103,7 @@ int main() {
 		return -1;
 	}	
 
-	//TestStateMachine();
+	TestStateMachine();
 	//TestNetworking();
 	//TestPathfinding();
 	

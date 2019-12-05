@@ -159,8 +159,8 @@ a particular pair will only be added once, so objects colliding for
 multiple frames won't flood the set with duplicates.
 */
 void PhysicsSystem::BasicCollisionDetection() {
-	std::vector < GameObject* >::const_iterator first;
-	std::vector < GameObject* >::const_iterator last;
+	std::vector <GameObject*>::const_iterator first;
+	std::vector <GameObject*>::const_iterator last;
 	gameWorld.GetObjectIterators(first, last);
 
 	for (auto i = first; i != last; ++i) {

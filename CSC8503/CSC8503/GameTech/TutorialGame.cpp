@@ -584,6 +584,5 @@ void TutorialGame::SimpleGJKTest() {
 
 	fallingCube->SetBoundingVolume((CollisionVolume*)new OBBVolume(dimensions));
 	newFloor->SetBoundingVolume((CollisionVolume*)new OBBVolume(floorDimensions));
-
 }
 
