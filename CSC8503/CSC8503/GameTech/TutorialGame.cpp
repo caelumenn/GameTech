@@ -40,7 +40,7 @@ void TutorialGame::InitialiseAssets() {
 
 	loadFunc("cube.msh"		 , &cubeMesh);
 	loadFunc("sphere.msh"	 , &sphereMesh);
-	loadFunc("goose.msh"	 , &gooseMesh);
+	loadFunc("CenteredGoose.msh"	 , &gooseMesh);
 	loadFunc("CharacterA.msh", &keeperMesh);
 	loadFunc("CharacterM.msh", &charA);
 	loadFunc("CharacterF.msh", &charB);
@@ -135,7 +135,7 @@ void TutorialGame::UpdateKeys() {
 
 void TutorialGame::LockedObjectMovement() {
 	Matrix4 view		= world->GetMainCamera()->BuildViewMatrix();
-	Matrix4 camWorld	= view.Inverse();
+	Matrix4 camWorld = view.Inverse();
 
 	Vector3 rightAxis = Vector3(camWorld.GetColumn(0)); //view is inverse of model!
 
@@ -147,18 +147,31 @@ void TutorialGame::LockedObjectMovement() {
 
 	if (Window::GetKeyboard()->KeyDown(KeyboardKeys::LEFT)) {
 		selectionObject->GetPhysicsObject()->AddForce(-rightAxis);
+		Quaternion or = Quaternion::EulerAnglesToQuaternion(0.0f, 90.0f, 0.0f);
+		std::cout<<or<<std::endl;
+		selectionObject->GetTransform().SetLocalOrientation(or);
 	}
 
 	if (Window::GetKeyboard()->KeyDown(KeyboardKeys::RIGHT)) {
 		selectionObject->GetPhysicsObject()->AddForce(rightAxis);
+		Vector3 lineVel = selectionObject->GetPhysicsObject()->GetLinearVelocity();
+		Quaternion or = Quaternion::EulerAnglesToQuaternion(0.0f, -90.0f, 0.0f);
+		std::cout<<or<<std::endl;
+		selectionObject->GetTransform().SetLocalOrientation(or);
 	}
 
 	if (Window::GetKeyboard()->KeyDown(KeyboardKeys::UP)) {
 		selectionObject->GetPhysicsObject()->AddForce(fwdAxis);
+		Quaternion or = Quaternion::EulerAnglesToQuaternion(0.0f, 0.0f, 0.0f);
+		std::cout<<or<<std::endl;
+		selectionObject->GetTransform().SetLocalOrientation(or);
 	}
 
 	if (Window::GetKeyboard()->KeyDown(KeyboardKeys::DOWN)) {
 		selectionObject->GetPhysicsObject()->AddForce(-fwdAxis);
+		Quaternion or = Quaternion::EulerAnglesToQuaternion(0.0f,180.0f, 0.0f);
+		std::cout<<or<<std::endl;
+		selectionObject->GetTransform().SetLocalOrientation(or);
 	}
 }
 
