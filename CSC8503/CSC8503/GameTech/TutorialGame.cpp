@@ -138,39 +138,74 @@ void TutorialGame::LockedObjectMovement() {
 	Matrix4 camWorld = view.Inverse();
 
 	Vector3 rightAxis = Vector3(camWorld.GetColumn(0)); //view is inverse of model!
-
 	//forward is more tricky -  camera forward is 'into' the screen...
 	//so we can take a guess, and use the cross of straight up, and
 	//the right axis, to hopefully get a vector that's good enough!
-
 	Vector3 fwdAxis = Vector3::Cross(Vector3(0, 1, 0), rightAxis);
+	rightAxis.Normalise();
+	fwdAxis.Normalise();
+
+	rightAxis *= 10;
+	fwdAxis *= 10;
 
 	if (Window::GetKeyboard()->KeyDown(KeyboardKeys::LEFT)) {
 		selectionObject->GetPhysicsObject()->AddForce(-rightAxis);
-		Quaternion or = Quaternion::EulerAnglesToQuaternion(0.0f, 90.0f, 0.0f);
-		std::cout<<or<<std::endl;
+		Quaternion or;
+		if (Window::GetKeyboard()->KeyDown(KeyboardKeys::UP)) {
+			or = Quaternion::AxisAngleToQuaterion(Vector3(0,1,0), 45.0f);
+		}
+		else if (Window::GetKeyboard()->KeyDown(KeyboardKeys::DOWN)) {
+			or = Quaternion::EulerAnglesToQuaternion(0.0f, 135.0f, 0.0f);
+		}
+		else {
+			or = Quaternion::EulerAnglesToQuaternion(0.0f, 90.0f, 0.0f);
+		}
 		selectionObject->GetTransform().SetLocalOrientation(or);
 	}
 
 	if (Window::GetKeyboard()->KeyDown(KeyboardKeys::RIGHT)) {
 		selectionObject->GetPhysicsObject()->AddForce(rightAxis);
-		Vector3 lineVel = selectionObject->GetPhysicsObject()->GetLinearVelocity();
-		Quaternion or = Quaternion::EulerAnglesToQuaternion(0.0f, -90.0f, 0.0f);
-		std::cout<<or<<std::endl;
+		Quaternion or;
+		if (Window::GetKeyboard()->KeyDown(KeyboardKeys::UP)) {
+			or = Quaternion::EulerAnglesToQuaternion(0.0f, -45.0f, 0.0f);
+		}
+		else if (Window::GetKeyboard()->KeyDown(KeyboardKeys::DOWN)) {
+			or = Quaternion::EulerAnglesToQuaternion(0.0f, -135.0f, 0.0f);
+		}
+		else{
+			or = Quaternion::EulerAnglesToQuaternion(0.0f, -90.0f, 0.0f);
+		}
 		selectionObject->GetTransform().SetLocalOrientation(or);
 	}
 
 	if (Window::GetKeyboard()->KeyDown(KeyboardKeys::UP)) {
 		selectionObject->GetPhysicsObject()->AddForce(fwdAxis);
-		Quaternion or = Quaternion::EulerAnglesToQuaternion(0.0f, 0.0f, 0.0f);
-		std::cout<<or<<std::endl;
+		Quaternion or;
+		
+		if (Window::GetKeyboard()->KeyDown(KeyboardKeys::RIGHT)) {
+			or = Quaternion::EulerAnglesToQuaternion(0.0f, -45.0f, 0.0f);
+		}
+		else if (Window::GetKeyboard()->KeyDown(KeyboardKeys::LEFT)) {
+			or = Quaternion::AxisAngleToQuaterion(Vector3(0,1,0), 45.0f);
+		}
+		else {
+			or = Quaternion::EulerAnglesToQuaternion(0.0f, 0.0f, 0.0f);
+		}
 		selectionObject->GetTransform().SetLocalOrientation(or);
 	}
 
 	if (Window::GetKeyboard()->KeyDown(KeyboardKeys::DOWN)) {
 		selectionObject->GetPhysicsObject()->AddForce(-fwdAxis);
-		Quaternion or = Quaternion::EulerAnglesToQuaternion(0.0f,180.0f, 0.0f);
-		std::cout<<or<<std::endl;
+		Quaternion or ;
+		if (Window::GetKeyboard()->KeyDown(KeyboardKeys::RIGHT)) {
+			or = Quaternion::EulerAnglesToQuaternion(0.0f, -135.0f, 0.0f);
+		}
+		else if (Window::GetKeyboard()->KeyDown(KeyboardKeys::LEFT)) {
+			or = Quaternion::EulerAnglesToQuaternion(0.0f, 135.0f, 0.0f);
+		}
+		else {
+			or = Quaternion::EulerAnglesToQuaternion(0.0f, 180.0f, 0.0f);
+		}
 		selectionObject->GetTransform().SetLocalOrientation(or);
 	}
 }
@@ -329,8 +364,9 @@ void TutorialGame::InitCamera() {
 void TutorialGame::InitWorld() {
 	world->ClearAndErase();
 	physics->Clear();
-
-	InitMixedGridWorld(10, 10, 3.5f, 3.5f);
+	BridgeConstraintTest();
+	//InitMixedGridWorld(10, 10, 3.5f, 3.5f);
+	AddPlayerGooseToWorld(Vector3(25, 2, 0));
 	AddGooseToWorld(Vector3(30, 2, 0));
 	AddAppleToWorld(Vector3(35, 2, 0));
 
@@ -413,6 +449,28 @@ GameObject* TutorialGame::AddCubeToWorld(const Vector3& position, Vector3 dimens
 	world->AddGameObject(cube);
 
 	return cube;
+}
+
+PlayerGoose* TutorialGame::AddPlayerGooseToWorld(const Vector3& position) {
+	float size = 1.0f;
+	float inverseMass = 1.0f;
+
+	PlayerGoose* goose = new PlayerGoose("goose");
+	SphereVolume* volume = new SphereVolume(size);
+	goose->SetBoundingVolume((CollisionVolume*)volume);
+
+	goose->GetTransform().SetWorldScale(Vector3(size, size, size));
+	goose->GetTransform().SetWorldPosition(position);
+
+	goose->SetRenderObject(new RenderObject(&goose->GetTransform(), gooseMesh, nullptr, basicShader));
+	goose->SetPhysicsObject(new PhysicsObject(&goose->GetTransform(), goose->GetBoundingVolume()));
+
+	goose->GetPhysicsObject()->SetInverseMass(inverseMass);
+	goose->GetPhysicsObject()->InitSphereInertia();
+
+	world->AddGameObject(goose);
+
+	return goose;
 }
 
 GameObject* TutorialGame::AddGooseToWorld(const Vector3& position)
@@ -559,16 +617,16 @@ void TutorialGame::InitCubeGridWorld(int numRows, int numCols, float rowSpacing,
 }
 
 void TutorialGame::BridgeConstraintTest() {
-	Vector3 cubeSize = Vector3(8, 8, 8);
+	Vector3 cubeSize = Vector3(1, 1, 1);
 
 	float	invCubeMass = 5;
 	int		numLinks	= 25;
 	float	maxDistance	= 30;
 	float	cubeDistance = 20;
 
-	Vector3 startPos = Vector3(500, 1000, 500);
+	Vector3 startPos = Vector3(10, 10, 10);
 
-	GameObject* start = AddCubeToWorld(startPos + Vector3(0, 0, 0), cubeSize, 0);
+	GameObject* start = AddCubeToWorld(startPos + Vector3(0, 0, 0), cubeSize, 5);
 
 	GameObject* end = AddCubeToWorld(startPos + Vector3((numLinks + 2) * cubeDistance, 0, 0), cubeSize, 0);
 
