@@ -2,25 +2,33 @@
 #include "PositionConstraint.h"
 #include "GameWorld.h"
 using namespace NCL::CSC8503;
-//class GameWorld;
 
 PlayerGoose::PlayerGoose(string objectName) {
+	score = 0;
+	carryApple = false;
 	name = objectName;
 	isActive = true;
+	
 	boundingVolume = nullptr;
 	physicsObject = nullptr;
 	renderObject = nullptr;
 	networkObject = nullptr;
+	world = nullptr;
+	constraint = nullptr;
 }
 
 void PlayerGoose::OnCollisionBegin(GameObject* otherObject) {
 	if (otherObject->GetName() == "apple") {
-		std::cout << "start" << std::endl;
-		PositionConstraint* constraint = new PositionConstraint((GameObject*)this, otherObject, 5.0f);
-	    otherObject->GetGameWorld()->AddConstraint(constraint);
+		//std::cout << "start" << std::endl;
+		if (!carryApple) {
+			constraint = new PositionConstraint((GameObject*)this, otherObject, 2.0f);
+			otherObject->GetGameWorld()->AddConstraint(constraint);
+			carryApple = true;
+			std::cout << "start" << std::endl;
+		}
 	}
 }
 
 void PlayerGoose::OnCollisionEnd(GameObject* otherObject) {
-	std::cout << "end" << std::endl;
+	//std::cout << "end" << std::endl;
 }
