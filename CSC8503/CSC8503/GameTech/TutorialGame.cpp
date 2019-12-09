@@ -364,7 +364,7 @@ void TutorialGame::InitCamera() {
 void TutorialGame::InitWorld() {
 	world->ClearAndErase();
 	physics->Clear();
-	BridgeConstraintTest();
+	//BridgeConstraintTest();
 	//InitMixedGridWorld(10, 10, 3.5f, 3.5f);
 	AddPlayerGooseToWorld(Vector3(25, 2, 0));
 	AddGooseToWorld(Vector3(30, 2, 0));
@@ -467,6 +467,7 @@ PlayerGoose* TutorialGame::AddPlayerGooseToWorld(const Vector3& position) {
 
 	goose->GetPhysicsObject()->SetInverseMass(inverseMass);
 	goose->GetPhysicsObject()->InitSphereInertia();
+	goose->SetGameWorld(world);
 
 	world->AddGameObject(goose);
 
@@ -571,7 +572,7 @@ GameObject* TutorialGame::AddAppleToWorld(const Vector3& position) {
 
 	apple->GetPhysicsObject()->SetInverseMass(1.0f);
 	apple->GetPhysicsObject()->InitSphereInertia();
-
+	apple->SetGameWorld(world);
 	world->AddGameObject(apple);
 
 	return apple;

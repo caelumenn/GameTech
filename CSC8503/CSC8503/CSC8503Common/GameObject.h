@@ -2,6 +2,7 @@
 #include "Transform.h"
 #include "CollisionVolume.h"
 
+
 #include "PhysicsObject.h"
 #include "RenderObject.h"
 #include "NetworkObject.h"
@@ -13,7 +14,7 @@ using std::vector;
 namespace NCL {
 	namespace CSC8503 {
 		class NetworkObject;
-
+		class GameWorld;
 		class GameObject	{
 		public:
 			GameObject(string name = "");
@@ -51,6 +52,14 @@ namespace NCL {
 				return networkObject;
 			}
 
+			void SetGameWorld(GameWorld* newworld) {
+				world = newworld;
+			}
+
+			GameWorld* GetGameWorld(){
+				return world;
+			}
+
 			void SetRenderObject(RenderObject* newObject) {
 				renderObject = newObject;
 			}
@@ -82,6 +91,7 @@ namespace NCL {
 			PhysicsObject*		physicsObject;
 			RenderObject*		renderObject;
 			NetworkObject*		networkObject;
+			GameWorld*			world;
 
 			bool	isActive;
 			string	name;
@@ -90,4 +100,5 @@ namespace NCL {
 		};
 	}
 }
+
 
