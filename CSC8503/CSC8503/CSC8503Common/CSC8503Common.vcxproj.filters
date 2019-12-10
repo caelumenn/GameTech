@@ -126,6 +126,9 @@
     <ClInclude Include="PlayerGoose.h">
       <Filter>Other</Filter>
     </ClInclude>
+    <ClInclude Include="ParkKeeper.h">
+      <Filter>Other</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="CollisionDetection.cpp">
@@ -204,6 +207,9 @@
       <Filter>Other</Filter>
     </ClCompile>
     <ClCompile Include="PlayerGoose.cpp">
+      <Filter>Other</Filter>
+    </ClCompile>
+    <ClCompile Include="ParkKeeper.cpp">
       <Filter>Other</Filter>
     </ClCompile>
   </ItemGroup>

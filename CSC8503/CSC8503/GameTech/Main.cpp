@@ -90,6 +90,7 @@ void TestPathfinding() {
 }
 
 void DisplayPathfinding() {
+	//std::cout << testNodes.size() << std::endl;
 	for (int i = 1; i < testNodes.size(); ++i) {
 		Vector3 a = testNodes[i - 1];
 		Vector3 b = testNodes[i];
@@ -123,12 +124,14 @@ int main() {
 	
 	w->ShowOSPointer(false);
 	w->LockMouseToWindow(true);
-
+	float maxTime = 180.0f;
 	TutorialGame* g = new TutorialGame();
 
 	while (w->UpdateWindow() && !Window::GetKeyboard()->KeyDown(KeyboardKeys::ESCAPE)) {
+		
 		float dt = w->GetTimer()->GetTimeDeltaSeconds();
-
+		maxTime -= dt;
+		std::cout << maxTime << std::endl;
 		if (dt > 1.0f) {
 			std::cout << "Skipping large time delta" << std::endl;
 			continue; //must have hit a breakpoint or something to have a 1 second frame time!

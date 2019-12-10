@@ -19,12 +19,10 @@ PlayerGoose::PlayerGoose(string objectName) {
 
 void PlayerGoose::OnCollisionBegin(GameObject* otherObject) {
 	if (otherObject->GetName() == "apple") {
-		//std::cout << "start" << std::endl;
 		if (!carryApple) {
 			constraint = new PositionConstraint((GameObject*)this, otherObject, 2.0f);
 			otherObject->GetGameWorld()->AddConstraint(constraint);
 			carryApple = true;
-			std::cout << "start" << std::endl;
 		}
 	}
 }

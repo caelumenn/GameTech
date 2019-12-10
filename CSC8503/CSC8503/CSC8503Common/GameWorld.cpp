@@ -40,7 +40,8 @@ void GameWorld::AddGameObject(GameObject* o) {
 }
 
 void GameWorld::RemoveGameObject(GameObject* o) {
-	std::remove(gameObjects.begin(), gameObjects.end(), o);
+	//constraints.erase(std::remove(constraints.begin(), constraints.end(), c), constraints.end());
+	gameObjects.erase(std::remove(gameObjects.begin(), gameObjects.end(), o), gameObjects.end());
 }
 
 void GameWorld::GetObjectIterators(

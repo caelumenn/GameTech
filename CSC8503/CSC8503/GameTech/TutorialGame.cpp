@@ -137,7 +137,9 @@ void TutorialGame::LockedObjectMovement() {
 	Matrix4 view		= world->GetMainCamera()->BuildViewMatrix();
 	Matrix4 camWorld = view.Inverse();
 
-	Vector3 rightAxis = Vector3(camWorld.GetColumn(0)); //view is inverse of model!
+	Vector3 rightAxis = Vector3(camWorld.GetColumn(0)); 
+	//view is inverse of model!
+
 	//forward is more tricky -  camera forward is 'into' the screen...
 	//so we can take a guess, and use the cross of straight up, and
 	//the right axis, to hopefully get a vector that's good enough!
@@ -373,7 +375,7 @@ void TutorialGame::InitWorld() {
 	AddParkKeeperToWorld(Vector3(40, 5, 0));
 	AddCharacterToWorld(Vector3(45, 5, 0));
 
-	AddFloorToWorld(Vector3(0, -2, 0));
+	AddFloorToWorld(Vector3(0, -4, 0));
 }
 
 //From here on it's functions to add in objects to the world!
@@ -570,7 +572,7 @@ GameObject* TutorialGame::AddAppleToWorld(const Vector3& position) {
 	apple->SetRenderObject(new RenderObject(&apple->GetTransform(), appleMesh, nullptr, basicShader));
 	apple->SetPhysicsObject(new PhysicsObject(&apple->GetTransform(), apple->GetBoundingVolume()));
 
-	apple->GetPhysicsObject()->SetInverseMass(1.0f);
+	apple->GetPhysicsObject()->SetInverseMass(10.0f);
 	apple->GetPhysicsObject()->InitSphereInertia();
 	apple->SetGameWorld(world);
 	world->AddGameObject(apple);
