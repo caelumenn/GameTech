@@ -12,7 +12,7 @@ GameWorld::GameWorld()	{
 	mainCamera = new Camera();
 
 	quadTree = nullptr;
-
+	player = nullptr;
 	shuffleConstraints	= false;
 	shuffleObjects		= false;
 }

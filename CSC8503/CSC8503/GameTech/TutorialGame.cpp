@@ -87,6 +87,8 @@ void TutorialGame::UpdateGame(float dt) {
 
 	world->UpdateWorld(dt);
 	renderer->Update(dt);
+	PlayerGoose* p = (PlayerGoose*)world->GetPlayer();
+	renderer->DrawString("Score: " + p->GetScore(), Vector2(10, 60));
 	physics->Update(dt);
 
 	Debug::FlushRenderables();
@@ -368,7 +370,8 @@ void TutorialGame::InitWorld() {
 	physics->Clear();
 	//BridgeConstraintTest();
 	//InitMixedGridWorld(10, 10, 3.5f, 3.5f);
-	AddPlayerGooseToWorld(Vector3(25, 2, 0));
+	PlayerGoose* player = AddPlayerGooseToWorld(Vector3(25, 2, 0));
+	world->SetPlayer((GameObject*)player);
 	AddGooseToWorld(Vector3(30, 2, 0));
 	AddAppleToWorld(Vector3(35, 2, 0));
 
@@ -376,6 +379,8 @@ void TutorialGame::InitWorld() {
 	AddCharacterToWorld(Vector3(45, 5, 0));
 
 	AddFloorToWorld(Vector3(0, -4, 0));
+	AddWaterToWorld(Vector3(0, -12, 0));
+	AddIslandToWorld(Vector3(0, -20, 0));
 }
 
 //From here on it's functions to add in objects to the world!
@@ -399,10 +404,53 @@ GameObject* TutorialGame::AddFloorToWorld(const Vector3& position) {
 
 	floor->GetPhysicsObject()->SetInverseMass(0);
 	floor->GetPhysicsObject()->InitCubeInertia();
+	floor->SetGameWorld(world);
 
 	world->AddGameObject(floor);
 
 	return floor;
+}
+
+GameObject* TutorialGame::AddIslandToWorld(const Vector3& position) {
+	GameObject* island = new GameObject("island");
+
+	Vector3 islandSize = Vector3(50, 2, 100);
+	AABBVolume* volume = new AABBVolume(islandSize);
+	island->SetBoundingVolume((CollisionVolume*)volume);
+	island->GetTransform().SetWorldScale(islandSize);
+	island->GetTransform().SetWorldPosition(position);
+
+	island->SetRenderObject(new RenderObject(&island->GetTransform(), cubeMesh, basicTex, basicShader));
+	island->SetPhysicsObject(new PhysicsObject(&island->GetTransform(), island->GetBoundingVolume()));
+
+	island->GetPhysicsObject()->SetInverseMass(0);
+	island->GetPhysicsObject()->InitCubeInertia();
+	island->SetGameWorld(world);
+
+	world->AddGameObject(island);
+
+	return island;
+}
+
+GameObject* TutorialGame::AddWaterToWorld(const Vector3& position) {
+	GameObject* water = new GameObject("island");
+
+	Vector3 waterSize = Vector3(50, 2, 100);
+	AABBVolume* volume = new AABBVolume(waterSize);
+	water->SetBoundingVolume((CollisionVolume*)volume);
+	water->GetTransform().SetWorldScale(waterSize);
+	water->GetTransform().SetWorldPosition(position);
+
+	water->SetRenderObject(new RenderObject(&water->GetTransform(), cubeMesh, basicTex, basicShader));
+	water->SetPhysicsObject(new PhysicsObject(&water->GetTransform(), water->GetBoundingVolume()));
+
+	water->GetPhysicsObject()->SetInverseMass(0);
+	water->GetPhysicsObject()->InitCubeInertia();
+	water->SetGameWorld(world);
+
+	world->AddGameObject(water);
+
+	return water;
 }
 
 /*

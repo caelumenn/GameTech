@@ -1,6 +1,7 @@
 #include "GameObject.h"
 #include "CollisionDetection.h"
-
+#include "GameWorld.h"
+#include "PlayerGoose.h"
 using namespace NCL::CSC8503;
 
 GameObject::GameObject(string objectName)	{
@@ -46,5 +47,24 @@ void GameObject::UpdateBroadphaseAABB() {
 		mat = mat.Absolute();
 		Vector3 halfSizes = ((OBBVolume&)*boundingVolume).GetHalfDimensions();
 		broadphaseAABB = mat * halfSizes;
+	}
+}
+
+void GameObject::OnCollisionBegin(GameObject* otherObject) {
+	if (otherObject->GetName() == "floor" && this->GetName() == "apple") {
+		PlayerGoose* player = (PlayerGoose*)this->GetGameWorld()->GetPlayer();
+		int score = player->GetScore();
+		score += 10;
+		player->SetScore(score);
+		system("pause");
+		PositionConstraint* constraint = player->GetConstraint();
+		world->RemoveConstraint(constraint);
+		player->SetCarry(false);
+		if (this->GetName() == "apple") {
+			world->RemoveGameObject(this);
+		}
+		else {
+			world->RemoveGameObject(otherObject);
+		}
 	}
 }

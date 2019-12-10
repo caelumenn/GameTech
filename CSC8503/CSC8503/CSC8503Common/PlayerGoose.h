@@ -10,6 +10,11 @@ namespace NCL {
 			~PlayerGoose() {}
 			void OnCollisionBegin(GameObject* otherObject) override;
 			void OnCollisionEnd(GameObject* otherobject) override;
+			void SetScore(int s) { score = s; }
+			int GetScore() { return score; }
+			void SetCarry(bool b) { carryApple = b; }
+			bool GetCarry() { return carryApple; }
+			PositionConstraint* GetConstraint() { return constraint; }
 		protected:
 			int score;
 			bool carryApple;
