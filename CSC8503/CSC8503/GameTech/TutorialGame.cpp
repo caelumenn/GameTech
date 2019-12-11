@@ -88,9 +88,10 @@ void TutorialGame::UpdateGame(float dt) {
 	world->UpdateWorld(dt);
 	renderer->Update(dt);
 	PlayerGoose* p = (PlayerGoose*)world->GetPlayer();
-	renderer->DrawString("Score: " + p->GetScore(), Vector2(10, 60));
+	renderer->DrawString("Score: " + std::to_string(p->GetScore()), Vector2(10, 60));
 	physics->Update(dt);
-
+	ParkKeeper* k = (ParkKeeper*)world->GetKeeper();
+	k->keeperStateMachine->Update();
 	Debug::FlushRenderables();
 	renderer->Render();
 }
@@ -149,8 +150,8 @@ void TutorialGame::LockedObjectMovement() {
 	rightAxis.Normalise();
 	fwdAxis.Normalise();
 
-	rightAxis *= 10;
-	fwdAxis *= 10;
+	rightAxis *= 50;
+	fwdAxis *= 50;
 
 	if (Window::GetKeyboard()->KeyDown(KeyboardKeys::LEFT)) {
 		selectionObject->GetPhysicsObject()->AddForce(-rightAxis);
@@ -372,15 +373,17 @@ void TutorialGame::InitWorld() {
 	//InitMixedGridWorld(10, 10, 3.5f, 3.5f);
 	PlayerGoose* player = AddPlayerGooseToWorld(Vector3(25, 2, 0));
 	world->SetPlayer((GameObject*)player);
-	AddGooseToWorld(Vector3(30, 2, 0));
+
+	//AddGooseToWorld(Vector3(30, 2, 0));
 	AddAppleToWorld(Vector3(35, 2, 0));
 
-	AddParkKeeperToWorld(Vector3(40, 5, 0));
-	AddCharacterToWorld(Vector3(45, 5, 0));
+	ParkKeeper* keeper = AddParkKeeperToWorld(Vector3(40, 5, 0));
+	world->SetKeeper((GameObject*)keeper);
+	//AddCharacterToWorld(Vector3(45, 5, 0));
 
 	AddFloorToWorld(Vector3(0, -4, 0));
-	AddWaterToWorld(Vector3(0, -12, 0));
-	AddIslandToWorld(Vector3(0, -20, 0));
+	AddWaterToWorld(Vector3(0, -4, -110));
+	AddIslandToWorld(Vector3(0, -4, -170));
 }
 
 //From here on it's functions to add in objects to the world!
@@ -393,13 +396,13 @@ A single function to add a large immoveable cube to the bottom of our world
 GameObject* TutorialGame::AddFloorToWorld(const Vector3& position) {
 	GameObject* floor = new GameObject("floor");
 
-	Vector3 floorSize = Vector3(100, 2, 100);
+	Vector3 floorSize = Vector3(100, 2, 80);
 	AABBVolume* volume = new AABBVolume(floorSize);
 	floor->SetBoundingVolume((CollisionVolume*)volume);
 	floor->GetTransform().SetWorldScale(floorSize);
 	floor->GetTransform().SetWorldPosition(position);
 
-	floor->SetRenderObject(new RenderObject(&floor->GetTransform(), cubeMesh, basicTex, basicShader));
+	floor->SetRenderObject(new RenderObject(&floor->GetTransform(), cubeMesh, nullptr, basicShader));
 	floor->SetPhysicsObject(new PhysicsObject(&floor->GetTransform(), floor->GetBoundingVolume()));
 
 	floor->GetPhysicsObject()->SetInverseMass(0);
@@ -414,13 +417,14 @@ GameObject* TutorialGame::AddFloorToWorld(const Vector3& position) {
 GameObject* TutorialGame::AddIslandToWorld(const Vector3& position) {
 	GameObject* island = new GameObject("island");
 
-	Vector3 islandSize = Vector3(50, 2, 100);
+	Vector3 islandSize = Vector3(100, 2, 30);
 	AABBVolume* volume = new AABBVolume(islandSize);
 	island->SetBoundingVolume((CollisionVolume*)volume);
 	island->GetTransform().SetWorldScale(islandSize);
 	island->GetTransform().SetWorldPosition(position);
 
-	island->SetRenderObject(new RenderObject(&island->GetTransform(), cubeMesh, basicTex, basicShader));
+	island->SetRenderObject(new RenderObject(&island->GetTransform(), cubeMesh, nullptr, basicShader));
+	island->GetRenderObject()->SetColour(Vector4(1,1,0,1));
 	island->SetPhysicsObject(new PhysicsObject(&island->GetTransform(), island->GetBoundingVolume()));
 
 	island->GetPhysicsObject()->SetInverseMass(0);
@@ -435,13 +439,14 @@ GameObject* TutorialGame::AddIslandToWorld(const Vector3& position) {
 GameObject* TutorialGame::AddWaterToWorld(const Vector3& position) {
 	GameObject* water = new GameObject("island");
 
-	Vector3 waterSize = Vector3(50, 2, 100);
+	Vector3 waterSize = Vector3(100, 2, 30);
 	AABBVolume* volume = new AABBVolume(waterSize);
 	water->SetBoundingVolume((CollisionVolume*)volume);
 	water->GetTransform().SetWorldScale(waterSize);
 	water->GetTransform().SetWorldPosition(position);
 
-	water->SetRenderObject(new RenderObject(&water->GetTransform(), cubeMesh, basicTex, basicShader));
+	water->SetRenderObject(new RenderObject(&water->GetTransform(), cubeMesh, nullptr, basicShader));
+	water->GetRenderObject()->SetColour(Vector4(0, 0, 1, 1));
 	water->SetPhysicsObject(new PhysicsObject(&water->GetTransform(), water->GetBoundingVolume()));
 
 	water->GetPhysicsObject()->SetInverseMass(0);
@@ -549,12 +554,12 @@ GameObject* TutorialGame::AddGooseToWorld(const Vector3& position)
 	return goose;
 }
 
-GameObject* TutorialGame::AddParkKeeperToWorld(const Vector3& position)
+ParkKeeper* TutorialGame::AddParkKeeperToWorld(const Vector3& position)
 {
 	float meshSize = 4.0f;
 	float inverseMass = 0.5f;
 
-	GameObject* keeper = new GameObject("ParkKeeper");
+	ParkKeeper* keeper = new ParkKeeper("ParkKeeper");
 
 	AABBVolume* volume = new AABBVolume(Vector3(0.3, 0.9f, 0.3) * meshSize);
 	keeper->SetBoundingVolume((CollisionVolume*)volume);
@@ -567,7 +572,8 @@ GameObject* TutorialGame::AddParkKeeperToWorld(const Vector3& position)
 
 	keeper->GetPhysicsObject()->SetInverseMass(inverseMass);
 	keeper->GetPhysicsObject()->InitCubeInertia();
-
+	keeper->SetGameWorld(world);
+	keeper->setStateMachine();
 	world->AddGameObject(keeper);
 
 	return keeper;

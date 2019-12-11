@@ -2,6 +2,7 @@
 #include "GameTechRenderer.h"
 #include "../CSC8503Common/PhysicsSystem.h"
 #include "../CSC8503Common/PlayerGoose.h"
+#include "../CSC8503Common/ParkKeeper.h"
 
 
 namespace NCL {
@@ -45,10 +46,11 @@ namespace NCL {
 			GameObject* AddCubeToWorld(const Vector3& position, Vector3 dimensions, float inverseMass = 10.0f);
 			//IT'S HAPPENING
 			GameObject* AddGooseToWorld(const Vector3& position);
-			GameObject* AddParkKeeperToWorld(const Vector3& position);
+			//GameObject* AddParkKeeperToWorld(const Vector3& position);
 			GameObject* AddCharacterToWorld(const Vector3& position);
 			GameObject* AddAppleToWorld(const Vector3& position);
 			PlayerGoose* AddPlayerGooseToWorld(const Vector3& position);
+			ParkKeeper* AddParkKeeperToWorld(const Vector3& position);
 
 			GameTechRenderer*	renderer;
 			PhysicsSystem*		physics;

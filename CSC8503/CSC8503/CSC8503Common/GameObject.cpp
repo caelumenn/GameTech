@@ -51,12 +51,12 @@ void GameObject::UpdateBroadphaseAABB() {
 }
 
 void GameObject::OnCollisionBegin(GameObject* otherObject) {
-	if (otherObject->GetName() == "floor" && this->GetName() == "apple") {
+	if (otherObject->GetName() == "island" && this->GetName() == "apple") {
 		PlayerGoose* player = (PlayerGoose*)this->GetGameWorld()->GetPlayer();
 		int score = player->GetScore();
 		score += 10;
 		player->SetScore(score);
-		system("pause");
+		//system("pause");
 		PositionConstraint* constraint = player->GetConstraint();
 		world->RemoveConstraint(constraint);
 		player->SetCarry(false);

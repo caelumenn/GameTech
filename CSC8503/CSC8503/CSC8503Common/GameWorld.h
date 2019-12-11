@@ -61,6 +61,14 @@ namespace NCL {
 				return player;
 			}
 
+			void SetKeeper(GameObject* k) {
+				keeper = k;
+			}
+
+			GameObject* GetKeeper() {
+				return keeper;
+			}
+
 		protected:
 			void UpdateTransforms();
 			void UpdateQuadTree();
@@ -71,6 +79,7 @@ namespace NCL {
 
 			QuadTree<GameObject*>* quadTree;
 			GameObject* player;
+			GameObject* keeper;
 			Camera* mainCamera;
 
 			bool shuffleConstraints;

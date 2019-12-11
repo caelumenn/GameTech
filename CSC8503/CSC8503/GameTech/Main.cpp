@@ -86,7 +86,8 @@ void TestPathfinding() {
 	
 	Vector3 pos;
 	while (outPath.PopWaypoint(pos)) {
-		testNodes.push_back(pos);	}
+		testNodes.push_back(pos);
+	}
 }
 
 void DisplayPathfinding() {
@@ -94,7 +95,8 @@ void DisplayPathfinding() {
 	for (int i = 1; i < testNodes.size(); ++i) {
 		Vector3 a = testNodes[i - 1];
 		Vector3 b = testNodes[i];
-		Debug::DrawLine(a, b, Vector4(0, 1, 0, 1));	}
+		Debug::DrawLine(a, b, Vector4(0, 1, 0, 1));
+	}
 }
 
 
@@ -118,9 +120,9 @@ int main() {
 		return -1;
 	}	
 
-	TestStateMachine();
+	//TestStateMachine();
 	//TestNetworking();
-	TestPathfinding();
+	//TestPathfinding();
 	
 	w->ShowOSPointer(false);
 	w->LockMouseToWindow(true);
@@ -143,7 +145,7 @@ int main() {
 			w->ShowConsole(false);
 		}
 
-		DisplayPathfinding();
+		//DisplayPathfinding();
 
 		w->SetTitle("Gametech frame time:" + std::to_string(1000.0f * dt));
 
