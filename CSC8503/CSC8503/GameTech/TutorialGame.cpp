@@ -371,13 +371,13 @@ void TutorialGame::InitWorld() {
 	physics->Clear();
 	//BridgeConstraintTest();
 	//InitMixedGridWorld(10, 10, 3.5f, 3.5f);
-	PlayerGoose* player = AddPlayerGooseToWorld(Vector3(25, 2, 0));
+	PlayerGoose* player = AddPlayerGooseToWorld(Vector3(0, 2, 0));
 	world->SetPlayer((GameObject*)player);
 
 	//AddGooseToWorld(Vector3(30, 2, 0));
 	AddAppleToWorld(Vector3(35, 2, 0));
 
-	ParkKeeper* keeper = AddParkKeeperToWorld(Vector3(40, 5, 0));
+	ParkKeeper* keeper = AddParkKeeperToWorld(Vector3(50, 5, 0));
 	world->SetKeeper((GameObject*)keeper);
 	//AddCharacterToWorld(Vector3(45, 5, 0));
 
@@ -437,7 +437,7 @@ GameObject* TutorialGame::AddIslandToWorld(const Vector3& position) {
 }
 
 GameObject* TutorialGame::AddWaterToWorld(const Vector3& position) {
-	GameObject* water = new GameObject("island");
+	GameObject* water = new GameObject("water");
 
 	Vector3 waterSize = Vector3(100, 2, 30);
 	AABBVolume* volume = new AABBVolume(waterSize);
