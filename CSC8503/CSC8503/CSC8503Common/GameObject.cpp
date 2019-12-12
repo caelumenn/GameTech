@@ -60,5 +60,6 @@ void GameObject::OnCollisionBegin(GameObject* otherObject) {
 		world->RemoveConstraint(constraint);
 		player->SetCarry(false);
 		world->RemoveGameObject(this);
+		GameWorld::setGameOver(true);
 	}
 }

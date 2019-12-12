@@ -52,7 +52,7 @@ void ParkKeeper::setStateMachine() {
 			p->pathFinding();
 			p->nowDes = p->pathNodes->begin();
 		}
-		p->Display();
+		
 		p->ChasePlayer();
 		//std::cout << "In State Chase!" << std::endl;
 	};
@@ -76,10 +76,10 @@ void ParkKeeper::Display() {
 		Vector3 b = pathNodes->at(i);
 
 		a.x = -(a.x - 100.0);
-		a.y = 3;
+		a.y = 0;
 		a.z = -(a.z - 80.0);
 		b.x = -(b.x - 100.0);
-		b.y = 3;
+		b.y = 0;
 		b.z = -(b.z - 80.0);
 		Debug::DrawLine(a, b, Vector4(0, 1, 0, 1));
 	}
@@ -101,7 +101,6 @@ void ParkKeeper::pathFinding() {
 	//endPos.y = 0;
 
 	findPath = grid.FindPath(startPos, endPos, outPath);
-	//std::cout << found << std::endl;
 
 	Vector3 pos;
 	while (outPath.PopWaypoint(pos)) {
@@ -110,46 +109,49 @@ void ParkKeeper::pathFinding() {
 }
 
 void ParkKeeper::ChasePlayer() {
-	Vector3 keeperPos = this->GetTransform().GetWorldPosition();
-	PlayerGoose* p = (PlayerGoose*)this->GetGameWorld()->GetPlayer();
-	keeperPos.y = 0;
-	Vector3 desPos = *nowDes;
+	if (findPath) {
+		this->Display();
+		Vector3 keeperPos = this->GetTransform().GetWorldPosition();
+		PlayerGoose* p = (PlayerGoose*)this->GetGameWorld()->GetPlayer();
+		keeperPos.y = 0;
+		Vector3 desPos = *nowDes;
 
-	desPos.x = 100 - desPos.x;
-	desPos.z = 80 - desPos.z;
-	desPos.y = 0;
+		desPos.x = 100 - desPos.x;
+		desPos.z = 80 - desPos.z;
+		desPos.y = 0;
 
-	Vector3 distance = desPos - keeperPos;
+		Vector3 distance = desPos - keeperPos;
 
-	if (distance.Length() < 2) {
-		if (nowDes < pathNodes->end()) {
-			nowDes++;
-			if (nowDes == pathNodes->end()) {
-				this->GetTransform().SetWorldPosition(Vector3(50, 5, 50));
-				
-				if (p->GetCarry()) {
-					world->RemoveConstraint(p->GetConstraint()); 
-					p->SetCarry(false);
+		if (distance.Length() < 2) {
+			if (nowDes < pathNodes->end()) {
+				nowDes++;
+				if (nowDes == pathNodes->end()) {
+					this->GetTransform().SetWorldPosition(Vector3(50, 5, 50));
+
+					if (p->GetCarry()) {
+						world->RemoveConstraint(p->GetConstraint());
+						p->SetCarry(false);
+					}
+					p->GetTransform().SetWorldPosition(Vector3(0, 2, 0));
 				}
-				p->GetTransform().SetWorldPosition(Vector3(0, 2, 0));
 			}
 		}
-	}
-	else {
-		distance.Normalise();
-		distance.y = 0;
-		this->GetPhysicsObject()->AddForce(distance * 50);
-		
-		Vector3 pDistance = this->GetTransform().GetWorldPosition() - p->GetTransform().GetWorldPosition();
-		pDistance.y = 0;
-		float angle;
-		if (pDistance.z < 0) {
-			angle = atan(pDistance.x / pDistance.z) * (180.0f / PI);
-		}
 		else {
-			angle = atan(pDistance.x / pDistance.z) * (180.0f / PI) + 180.0;
+			distance.Normalise();
+			distance.y = 0;
+			this->GetPhysicsObject()->AddForce(distance * 50);
+
+			Vector3 pDistance = this->GetTransform().GetWorldPosition() - p->GetTransform().GetWorldPosition();
+			pDistance.y = 0;
+			float angle;
+			if (pDistance.z < 0) {
+				angle = atan(pDistance.x / pDistance.z) * (180.0f / PI);
+			}
+			else {
+				angle = atan(pDistance.x / pDistance.z) * (180.0f / PI) + 180.0;
+			}
+			this->GetTransform().SetLocalOrientation(Quaternion::EulerAnglesToQuaternion(0, angle, 0));
 		}
-		this->GetTransform().SetLocalOrientation(Quaternion::EulerAnglesToQuaternion(0, angle ,0));
 	}
 }
 

@@ -69,6 +69,14 @@ namespace NCL {
 				return keeper;
 			}
 
+			static const void setGameOver(bool o) {
+				gameover = o;
+			}
+
+			static const bool getGameOver() {
+				return gameover;
+			}
+
 		protected:
 			void UpdateTransforms();
 			void UpdateQuadTree();
@@ -84,6 +92,7 @@ namespace NCL {
 
 			bool shuffleConstraints;
 			bool shuffleObjects;
+			static bool gameover;
 		};
 	}
 }

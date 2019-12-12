@@ -8,6 +8,8 @@
 using namespace NCL;
 using namespace NCL::CSC8503;
 
+bool GameWorld::gameover = false;
+
 GameWorld::GameWorld()	{
 	mainCamera = new Camera();
 
@@ -15,6 +17,7 @@ GameWorld::GameWorld()	{
 	player = nullptr;
 	shuffleConstraints	= false;
 	shuffleObjects		= false;
+	keeper = nullptr;
 }
 
 GameWorld::~GameWorld()	{

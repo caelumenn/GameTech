@@ -16,9 +16,9 @@ TutorialGame::TutorialGame()	{
 	physics		= new PhysicsSystem(*world);
 
 	forceMagnitude	= 10.0f;
-	useGravity		= false;
+	useGravity		= true;
 	inSelectionMode = false;
-
+	menu = new MenuPushdownMachine();
 	Debug::SetRenderer(renderer);
 
 	InitialiseAssets();
@@ -66,34 +66,39 @@ TutorialGame::~TutorialGame()	{
 }
 
 void TutorialGame::UpdateGame(float dt) {
-	if (!inSelectionMode) {
-		world->GetMainCamera()->UpdateCamera(dt);
-	}
-	if (lockedObject != nullptr) {
-		LockedCameraMovement();
-	}
-
-	UpdateKeys();
-
-	if (useGravity) {
-		Debug::Print("(G)ravity on", Vector2(10, 40));
-	}
-	else {
-		Debug::Print("(G)ravity off", Vector2(10, 40));
-	}
-
-	SelectObject();
-	MoveSelectedObject();
-
-	world->UpdateWorld(dt);
-	renderer->Update(dt);
-	PlayerGoose* p = (PlayerGoose*)world->GetPlayer();
-	renderer->DrawString("Score: " + std::to_string(p->GetScore()), Vector2(10, 60));
-	physics->Update(dt);
+	menu->Update();
+	MenuType menuType = menu->GetActiveStateType();
 	ParkKeeper* k = (ParkKeeper*)world->GetKeeper();
-	k->keeperStateMachine->Update();
-	Debug::FlushRenderables();
-	renderer->Render();
+	PlayerGoose* p = (PlayerGoose*)world->GetPlayer();
+	switch (menuType) {
+	case MenuType::mainMenu:
+		renderer->DrawString("press space to start game", Vector2(10, 60));
+		//renderer->Render();
+		break;
+	case MenuType::play:
+		lockedObject = world->GetPlayer();
+		LockedCameraMovement();
+		UpdateKeys();
+		/*if (useGravity) {
+			Debug::Print("(G)ravity on", Vector2(10, 40));
+		}
+		else {
+			Debug::Print("(G)ravity off", Vector2(10, 40));
+		}*/
+		world->UpdateWorld(dt);
+		renderer->Update(dt);
+		physics->Update(dt);
+		
+		renderer->DrawString("Score: " + std::to_string(p->GetScore()), Vector2(10, 20));
+		k->keeperStateMachine->Update();
+		Debug::FlushRenderables();
+		renderer->Render();
+		break;
+	case MenuType::gameOver:
+		renderer->DrawString("GameOver and your Score: " + std::to_string(p->GetScore()), Vector2(10, 20));
+		renderer->Render();
+		break;
+	}
 }
 
 void TutorialGame::UpdateKeys() {
@@ -154,7 +159,7 @@ void TutorialGame::LockedObjectMovement() {
 	fwdAxis *= 50;
 
 	if (Window::GetKeyboard()->KeyDown(KeyboardKeys::LEFT)) {
-		selectionObject->GetPhysicsObject()->AddForce(-rightAxis);
+		lockedObject->GetPhysicsObject()->AddForce(-rightAxis);
 		Quaternion or;
 		if (Window::GetKeyboard()->KeyDown(KeyboardKeys::UP)) {
 			or = Quaternion::AxisAngleToQuaterion(Vector3(0,1,0), 45.0f);
@@ -165,11 +170,11 @@ void TutorialGame::LockedObjectMovement() {
 		else {
 			or = Quaternion::EulerAnglesToQuaternion(0.0f, 90.0f, 0.0f);
 		}
-		selectionObject->GetTransform().SetLocalOrientation(or);
+		lockedObject->GetTransform().SetLocalOrientation(or);
 	}
 
 	if (Window::GetKeyboard()->KeyDown(KeyboardKeys::RIGHT)) {
-		selectionObject->GetPhysicsObject()->AddForce(rightAxis);
+		lockedObject->GetPhysicsObject()->AddForce(rightAxis);
 		Quaternion or;
 		if (Window::GetKeyboard()->KeyDown(KeyboardKeys::UP)) {
 			or = Quaternion::EulerAnglesToQuaternion(0.0f, -45.0f, 0.0f);
@@ -180,11 +185,11 @@ void TutorialGame::LockedObjectMovement() {
 		else{
 			or = Quaternion::EulerAnglesToQuaternion(0.0f, -90.0f, 0.0f);
 		}
-		selectionObject->GetTransform().SetLocalOrientation(or);
+		lockedObject->GetTransform().SetLocalOrientation(or);
 	}
 
 	if (Window::GetKeyboard()->KeyDown(KeyboardKeys::UP)) {
-		selectionObject->GetPhysicsObject()->AddForce(fwdAxis);
+		lockedObject->GetPhysicsObject()->AddForce(fwdAxis);
 		Quaternion or;
 		
 		if (Window::GetKeyboard()->KeyDown(KeyboardKeys::RIGHT)) {
@@ -196,11 +201,11 @@ void TutorialGame::LockedObjectMovement() {
 		else {
 			or = Quaternion::EulerAnglesToQuaternion(0.0f, 0.0f, 0.0f);
 		}
-		selectionObject->GetTransform().SetLocalOrientation(or);
+		lockedObject->GetTransform().SetLocalOrientation(or);
 	}
 
 	if (Window::GetKeyboard()->KeyDown(KeyboardKeys::DOWN)) {
-		selectionObject->GetPhysicsObject()->AddForce(-fwdAxis);
+		lockedObject->GetPhysicsObject()->AddForce(-fwdAxis);
 		Quaternion or ;
 		if (Window::GetKeyboard()->KeyDown(KeyboardKeys::RIGHT)) {
 			or = Quaternion::EulerAnglesToQuaternion(0.0f, -135.0f, 0.0f);
@@ -211,7 +216,7 @@ void TutorialGame::LockedObjectMovement() {
 		else {
 			or = Quaternion::EulerAnglesToQuaternion(0.0f, 180.0f, 0.0f);
 		}
-		selectionObject->GetTransform().SetLocalOrientation(or);
+		lockedObject->GetTransform().SetLocalOrientation(or);
 	}
 }
 
@@ -374,12 +379,14 @@ void TutorialGame::InitWorld() {
 
 	AddAppleToWorld(Vector3(35, 2, 0));
 
-	ParkKeeper* keeper = AddParkKeeperToWorld(Vector3(50, 5, 50));
+	ParkKeeper* keeper = AddParkKeeperToWorld(Vector3(25, 5, 50));
 	world->SetKeeper((GameObject*)keeper);
 
+	GameWorld::setGameOver(false);
 	AddFloorToWorld(Vector3(0, -4, 0));
 	AddWaterToWorld(Vector3(0, -4, -110));
 	AddIslandToWorld(Vector3(0, -4, -170));
+	GenerateBlocks();
 }
 
 //From here on it's functions to add in objects to the world!
@@ -524,6 +531,12 @@ PlayerGoose* TutorialGame::AddPlayerGooseToWorld(const Vector3& position) {
 	world->AddGameObject(goose);
 
 	return goose;
+}
+
+void TutorialGame::GenerateBlocks() {
+	for (int i = 0; i < 10; i++) {
+		AddCubeToWorld(Vector3(-50 + 10 * i, 3, 40), Vector3(5,5,5), 0.0);
+	}
 }
 
 GameObject* TutorialGame::AddGooseToWorld(const Vector3& position)

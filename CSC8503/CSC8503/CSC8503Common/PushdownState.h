@@ -1,5 +1,6 @@
 #pragma once
 #include "State.h"
+#include "GameWorld.h"
 
 namespace NCL {
 	namespace CSC8503 {
@@ -11,7 +12,7 @@ namespace NCL {
 			gameOver,
 			exit
 		};
-		enum PushdownResult {
+		enum class PushdownResult {
 			Push, Pop, NoChange
 		};
 		class PushdownState : public State

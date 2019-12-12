@@ -3,6 +3,8 @@
 #include "../CSC8503Common/PhysicsSystem.h"
 #include "../CSC8503Common/PlayerGoose.h"
 #include "../CSC8503Common/ParkKeeper.h"
+#include "../CSC8503Common/PushdownMachine.h"
+#include "../CSC8503Common/PushdownState.h"
 
 
 namespace NCL {
@@ -13,6 +15,7 @@ namespace NCL {
 			~TutorialGame();
 
 			virtual void UpdateGame(float dt);
+			MenuPushdownMachine* menu;
 
 		protected:
 			void InitialiseAssets();
@@ -27,6 +30,7 @@ namespace NCL {
 			in the module. Feel free to mess around with them to see different objects being created in different
 			test scenarios (constraints, collision types, and so on). 
 			*/
+			void GenerateBlocks();
 			void InitSphereGridWorld(int numRows, int numCols, float rowSpacing, float colSpacing, float radius);
 			void InitMixedGridWorld(int numRows, int numCols, float rowSpacing, float colSpacing);
 			void InitCubeGridWorld(int numRows, int numCols, float rowSpacing, float colSpacing, const Vector3& cubeDims);

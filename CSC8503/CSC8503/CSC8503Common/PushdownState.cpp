@@ -29,6 +29,10 @@ PushdownResult MenuState::PushdownUpdate(MenuState** pushResult) {
 			(*pushResult)->type = MenuType::pause; // pause the game
 			return PushdownResult::Push;
 		}
+		if (GameWorld::getGameOver()) {
+			(*pushResult)->type = MenuType::gameOver;
+			return PushdownResult::Push;
+		}
 	}
 
 	if (this->type == MenuType::pause) {
