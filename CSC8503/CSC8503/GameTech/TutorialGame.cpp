@@ -369,17 +369,13 @@ void TutorialGame::InitCamera() {
 void TutorialGame::InitWorld() {
 	world->ClearAndErase();
 	physics->Clear();
-	//BridgeConstraintTest();
-	//InitMixedGridWorld(10, 10, 3.5f, 3.5f);
 	PlayerGoose* player = AddPlayerGooseToWorld(Vector3(0, 2, 0));
 	world->SetPlayer((GameObject*)player);
 
-	//AddGooseToWorld(Vector3(30, 2, 0));
 	AddAppleToWorld(Vector3(35, 2, 0));
 
-	ParkKeeper* keeper = AddParkKeeperToWorld(Vector3(50, 5, 0));
+	ParkKeeper* keeper = AddParkKeeperToWorld(Vector3(50, 5, 50));
 	world->SetKeeper((GameObject*)keeper);
-	//AddCharacterToWorld(Vector3(45, 5, 0));
 
 	AddFloorToWorld(Vector3(0, -4, 0));
 	AddWaterToWorld(Vector3(0, -4, -110));
@@ -448,7 +444,7 @@ GameObject* TutorialGame::AddWaterToWorld(const Vector3& position) {
 	water->SetRenderObject(new RenderObject(&water->GetTransform(), cubeMesh, nullptr, basicShader));
 	water->GetRenderObject()->SetColour(Vector4(0, 0, 1, 1));
 	water->SetPhysicsObject(new PhysicsObject(&water->GetTransform(), water->GetBoundingVolume()));
-
+	water->GetPhysicsObject()->SetElasticity(0.5f);
 	water->GetPhysicsObject()->SetInverseMass(0);
 	water->GetPhysicsObject()->InitCubeInertia();
 	water->SetGameWorld(world);
@@ -522,6 +518,7 @@ PlayerGoose* TutorialGame::AddPlayerGooseToWorld(const Vector3& position) {
 
 	goose->GetPhysicsObject()->SetInverseMass(inverseMass);
 	goose->GetPhysicsObject()->InitSphereInertia();
+	goose->GetPhysicsObject()->SetElasticity(0.5f);
 	goose->SetGameWorld(world);
 
 	world->AddGameObject(goose);
@@ -572,6 +569,7 @@ ParkKeeper* TutorialGame::AddParkKeeperToWorld(const Vector3& position)
 
 	keeper->GetPhysicsObject()->SetInverseMass(inverseMass);
 	keeper->GetPhysicsObject()->InitCubeInertia();
+	keeper->GetPhysicsObject()->SetElasticity(0.5f);
 	keeper->SetGameWorld(world);
 	keeper->setStateMachine();
 	world->AddGameObject(keeper);
@@ -628,6 +626,7 @@ GameObject* TutorialGame::AddAppleToWorld(const Vector3& position) {
 
 	apple->GetPhysicsObject()->SetInverseMass(10.0f);
 	apple->GetPhysicsObject()->InitSphereInertia();
+	apple->GetPhysicsObject()->SetElasticity(0.7f);
 	apple->SetGameWorld(world);
 	world->AddGameObject(apple);
 
@@ -713,4 +712,3 @@ void TutorialGame::SimpleGJKTest() {
 	fallingCube->SetBoundingVolume((CollisionVolume*)new OBBVolume(dimensions));
 	newFloor->SetBoundingVolume((CollisionVolume*)new OBBVolume(floorDimensions));
 }
-

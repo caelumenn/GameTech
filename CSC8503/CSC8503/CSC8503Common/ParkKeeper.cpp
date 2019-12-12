@@ -3,6 +3,8 @@
 
 using namespace NCL::CSC8503;
 
+#define PI 3.1415926535
+
 ParkKeeper::ParkKeeper(string objectName) {
 	name = objectName;
 	isActive = true;
@@ -26,7 +28,7 @@ void ParkKeeper::setStateMachine() {
 		ParkKeeper* p = (ParkKeeper*)data;
 		p->distance = (p->GetGameWorld()->GetPlayer()->GetTransform().GetWorldPosition() -
 			p->GetTransform().GetWorldPosition()).Length();
-		std::cout << "In State Idle!" << std::endl;
+		//std::cout << "In State Idle!" << std::endl;
 	};
 
 	StateFunc ChaseFunc = [](void* data) {
@@ -52,7 +54,7 @@ void ParkKeeper::setStateMachine() {
 		}
 		p->Display();
 		p->ChasePlayer();
-		std::cout << "In State Chase!" << std::endl;
+		//std::cout << "In State Chase!" << std::endl;
 	};
 
 	GenericState* idleState = new GenericState(IdleFunc, (void*)this);
@@ -63,7 +65,7 @@ void ParkKeeper::setStateMachine() {
 	GenericTransition<float&, float>* transitionA =
 		new GenericTransition <float&, float>(GenericTransition<float&, float>::LessThanTransition, distance, 50, idleState, chaseState);
 	GenericTransition<float&, float>* transitionB =
-		new GenericTransition <float&, float>(GenericTransition<float&, float>::GreaterThanTransition, distance, 80, chaseState, idleState);
+		new GenericTransition <float&, float>(GenericTransition<float&, float>::GreaterThanTransition, distance, 70, chaseState, idleState);
 
 	keeperStateMachine->AddTransition(transitionA);
 	keeperStateMachine->AddTransition(transitionB);
@@ -98,8 +100,8 @@ void ParkKeeper::pathFinding() {
 	endPos.z = 80.0 - endPos.z;
 	//endPos.y = 0;
 
-	bool found = grid.FindPath(startPos, endPos, outPath);
-	std::cout << found << std::endl;
+	findPath = grid.FindPath(startPos, endPos, outPath);
+	//std::cout << found << std::endl;
 
 	Vector3 pos;
 	while (outPath.PopWaypoint(pos)) {
@@ -109,6 +111,7 @@ void ParkKeeper::pathFinding() {
 
 void ParkKeeper::ChasePlayer() {
 	Vector3 keeperPos = this->GetTransform().GetWorldPosition();
+	PlayerGoose* p = (PlayerGoose*)this->GetGameWorld()->GetPlayer();
 	keeperPos.y = 0;
 	Vector3 desPos = *nowDes;
 
@@ -122,14 +125,36 @@ void ParkKeeper::ChasePlayer() {
 		if (nowDes < pathNodes->end()) {
 			nowDes++;
 			if (nowDes == pathNodes->end()) {
-				//
+				this->GetTransform().SetWorldPosition(Vector3(50, 5, 50));
+				
+				if (p->GetCarry()) {
+					world->RemoveConstraint(p->GetConstraint()); 
+					p->SetCarry(false);
+				}
+				p->GetTransform().SetWorldPosition(Vector3(0, 2, 0));
 			}
 		}
 	}
 	else {
 		distance.Normalise();
-		this->GetPhysicsObject()->AddForce(distance * 30);
+		distance.y = 0;
+		this->GetPhysicsObject()->AddForce(distance * 50);
+		
+		Vector3 pDistance = this->GetTransform().GetWorldPosition() - p->GetTransform().GetWorldPosition();
+		pDistance.y = 0;
+		float angle;
+		if (pDistance.z < 0) {
+			angle = atan(pDistance.x / pDistance.z) * (180.0f / PI);
+		}
+		else {
+			angle = atan(pDistance.x / pDistance.z) * (180.0f / PI) + 180.0;
+		}
+		this->GetTransform().SetLocalOrientation(Quaternion::EulerAnglesToQuaternion(0, angle ,0));
 	}
 }
 
-
+void ParkKeeper::OnCollisionBegin(GameObject* otherObject) {
+	if (otherObject->GetName() == "water") {
+		this->GetTransform().SetWorldPosition(Vector3(50, 5, 50));
+	}
+}

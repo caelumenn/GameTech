@@ -174,7 +174,13 @@ void PhysicsSystem::BasicCollisionDetection() {
 			CollisionDetection::CollisionInfo info;
 			if (CollisionDetection::ObjectIntersection(*i, *j, info)) {
 				//std::cout << " Collision between " << (*i)->GetName() << " and " << (*j)->GetName() << std::endl;
-				ImpulseResolveCollision(*info.a, *info.b, info.point);
+				if ((*i)->GetName() == "water" || (*j)->GetName() == "water") {
+					PenaltyResolveCollision(*info.a, *info.b, info.point);
+					std::cout << "water" << std::endl;
+				}
+				else {
+					ImpulseResolveCollision(*info.a, *info.b, info.point);
+				}
 				info.framesLeft = numCollisionFrames;
 				allCollisions.insert(info);
 			}
@@ -238,6 +244,32 @@ void PhysicsSystem::ImpulseResolveCollision(GameObject& a, GameObject& b, Collis
 
 	physA->ApplyAngularImpulse(Vector3::Cross(relativeA, -fullImpulse));
 	physB->ApplyAngularImpulse(Vector3::Cross(relativeB, fullImpulse));
+}
+
+void PhysicsSystem::PenaltyResolveCollision(GameObject& a, GameObject& b, CollisionDetection::ContactPoint& p) const {
+	PhysicsObject* physA = a.GetPhysicsObject();
+	PhysicsObject* physB = b.GetPhysicsObject();
+
+	float inverseMassA = physA->GetInverseMass();
+	float inverseMassB = physB->GetInverseMass();
+
+	Vector3 linearVelA = physA->GetLinearVelocity();
+	Vector3 linearVelB = physB->GetLinearVelocity();
+
+	//Calculate the Hooke's Law: F = -kx
+	float springForceScale = ((physA->GetElasticity() + physB->GetElasticity()) / 2) * p.penetration;
+	Vector3 springForce = p.normal * springForceScale;
+
+	//Apply the force to the acceleration of both objects
+	Vector3 accelA = -(springForce * inverseMassA);
+	Vector3 accelB = springForce * inverseMassB;
+
+	linearVelA += accelA;
+	linearVelB += accelB;
+	physA->SetLinearVelocity(linearVelA);
+	physB->SetLinearVelocity(linearVelB);
+	// This function is supposed to be used for water floating effect, so it doesn't necessarily need angular velocity
+	// But for general purpose of the penalty method, it should be extended to support angular velocity in the future.
 }
 
 /*

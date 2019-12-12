@@ -56,15 +56,9 @@ void GameObject::OnCollisionBegin(GameObject* otherObject) {
 		int score = player->GetScore();
 		score += 10;
 		player->SetScore(score);
-		//system("pause");
 		PositionConstraint* constraint = player->GetConstraint();
 		world->RemoveConstraint(constraint);
 		player->SetCarry(false);
-		if (this->GetName() == "apple") {
-			world->RemoveGameObject(this);
-		}
-		else {
-			world->RemoveGameObject(otherObject);
-		}
+		world->RemoveGameObject(this);
 	}
 }
