@@ -17,6 +17,7 @@ namespace NCL {
 			bool firstTime;
 			float distance;
 			float deltaTime;
+			bool findPath;
 			GameTimer* timer;
 			StateMachine* keeperStateMachine;
 			Vector3 playerPrePos;
@@ -34,7 +35,7 @@ namespace NCL {
 			void SetPlayerPrePos() {
 				playerPrePos = player->GetTransform().GetWorldPosition();
 			}
-			//void OnCollisionBegin(GameObject* otherObject) override;
+			void OnCollisionBegin(GameObject* otherObject) override;
 			//void OnCollisionEnd(GameObject* otherobject) override;
 		protected:
 			PlayerGoose* player;

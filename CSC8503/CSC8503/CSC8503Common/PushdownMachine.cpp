@@ -2,22 +2,27 @@
 #include "PushdownState.h"
 using namespace NCL::CSC8503;
 
-PushdownMachine::PushdownMachine()
+MenuPushdownMachine::MenuPushdownMachine()
 {
-	activeState = nullptr;
+	activeState = new MenuState(MenuType::mainMenu);
 }
 
-PushdownMachine::~PushdownMachine()
+MenuPushdownMachine::~MenuPushdownMachine()
 {
+	delete activeState;
 }
 
-void PushdownMachine::Update() {
+MenuType MenuPushdownMachine::GetActiveStateType() {
+	return activeState->GetType();
+}
+
+void MenuPushdownMachine::Update() {
 	if (activeState) {
-		PushdownState* newState = nullptr;
-		PushdownState::PushdownResult result = activeState->PushdownUpdate(&newState);
+		MenuState* newState = new MenuState;
+		PushdownResult result = activeState->PushdownUpdate(&newState);
 
 		switch (result) {
-			case PushdownState::Pop: {
+			case PushdownResult::Pop: {
 				activeState->OnSleep();
 				stateStack.pop();
 				if (stateStack.empty()) {
@@ -25,13 +30,14 @@ void PushdownMachine::Update() {
 				}
 				else {
 					activeState = stateStack.top();
-					activeState->OnAwake();
+					//activeState->OnAwake();
 				}
 			}break;
-			case PushdownState::Push: {
-				activeState->OnSleep();
+			case PushdownResult::Push: {
+				//activeState->OnSleep();
 				stateStack.push(newState);
-				newState->OnAwake();
+				activeState = stateStack.top();
+				//newState->OnAwake();
 			}break;
 		}
 	}

@@ -25,6 +25,15 @@ void PlayerGoose::OnCollisionBegin(GameObject* otherObject) {
 			carryApple = true;
 		}
 	}
+	if (otherObject->GetName() == "ParkKeeper") {
+		otherObject->GetTransform().SetWorldPosition(Vector3(50, 5, 50));
+		std::cout << "keeper goose" << std::endl;
+		if (this->GetCarry()) {
+			world->RemoveConstraint(this->GetConstraint());
+			this->SetCarry(false);
+		}
+		this->GetTransform().SetWorldPosition(Vector3(0, 2, 0));
+	}
 }
 
 void PlayerGoose::OnCollisionEnd(GameObject* otherObject) {

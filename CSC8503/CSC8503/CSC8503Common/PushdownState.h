@@ -3,13 +3,21 @@
 
 namespace NCL {
 	namespace CSC8503 {
-		class PushdownState :
-			public State
+		enum class MenuType {
+			init,
+			mainMenu,
+			play,
+			pause,
+			gameOver,
+			exit
+		};
+		enum PushdownResult {
+			Push, Pop, NoChange
+		};
+		class PushdownState : public State
 		{
 		public:
-			enum PushdownResult {
-				Push, Pop, NoChange
-			};
+
 			PushdownState();
 			~PushdownState();
 
@@ -17,6 +25,29 @@ namespace NCL {
 
 			virtual void OnAwake() {} //By default do nothing
 			virtual void OnSleep() {} //By default do nothing
+		};
+
+		class MenuState : public PushdownState {
+		public:
+			MenuState(MenuType type = MenuType::init) {
+				this->type = type;
+			}
+			~MenuState() {}
+
+			PushdownResult PushdownUpdate(MenuState** pushResult);
+
+			void Update() {}
+
+			MenuType GetType() {
+				return type;
+			}
+
+			void SetType(MenuType type) {
+				this->type = type;
+			}
+
+		private:
+			MenuType type;
 		};
 	}
 }
