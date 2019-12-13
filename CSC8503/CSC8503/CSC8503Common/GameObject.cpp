@@ -19,7 +19,7 @@ GameObject::~GameObject()	{
 	delete physicsObject;
 	delete renderObject;
 	delete networkObject;
-	delete world;
+	//delete world;
 }
 
 bool GameObject::GetBroadphaseAABB(Vector3&outSize) const {

@@ -12,7 +12,7 @@ namespace NCL {
 		class ParkKeeper : public GameObject{
 		public:
 			ParkKeeper(string name = "");
-			~ParkKeeper() {}
+			~ParkKeeper() { delete keeperStateMachine; }
 
 			bool firstTime;
 			float distance;

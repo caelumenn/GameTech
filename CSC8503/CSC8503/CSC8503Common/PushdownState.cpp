@@ -43,7 +43,17 @@ PushdownResult MenuState::PushdownUpdate(MenuState** pushResult) {
 			(*pushResult)->type = MenuType::exit;
 			return PushdownResult::Push; // Exit the game
 		}
+	}
 
+	if (this->type == MenuType::gameOver) {
+		if (Window::GetKeyboard()->KeyPressed(KeyboardKeys::R)) {
+			(*pushResult)->type = MenuType::mainMenu; //Play single player game
+			return PushdownResult::Push;
+		}
+		if (Window::GetKeyboard()->KeyPressed(KeyboardKeys::ESCAPE)) {
+			(*pushResult)->type = MenuType::exit;
+			return PushdownResult::Push; // Exit the game!
+		}
 	}
 	//Should have a game over state
 	return PushdownResult::NoChange;

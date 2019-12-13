@@ -14,6 +14,7 @@ namespace NCL {
 			TutorialGame();
 			~TutorialGame();
 
+			int score = 0;
 			virtual void UpdateGame(float dt);
 			MenuPushdownMachine* menu;
 

@@ -16,7 +16,7 @@ TutorialGame::TutorialGame()	{
 	physics		= new PhysicsSystem(*world);
 
 	forceMagnitude	= 10.0f;
-	useGravity		= true;
+	useGravity		= false;
 	inSelectionMode = false;
 	menu = new MenuPushdownMachine();
 	Debug::SetRenderer(renderer);
@@ -62,18 +62,19 @@ TutorialGame::~TutorialGame()	{
 
 	delete physics;
 	delete renderer;
-	delete world;
+	//delete world;
 }
 
 void TutorialGame::UpdateGame(float dt) {
 	menu->Update();
+	world->UpdateWorld(dt);
 	MenuType menuType = menu->GetActiveStateType();
 	ParkKeeper* k = (ParkKeeper*)world->GetKeeper();
 	PlayerGoose* p = (PlayerGoose*)world->GetPlayer();
 	switch (menuType) {
 	case MenuType::mainMenu:
 		renderer->DrawString("press space to start game", Vector2(10, 60));
-		//renderer->Render();
+		renderer->Render();
 		break;
 	case MenuType::play:
 		lockedObject = world->GetPlayer();
@@ -90,14 +91,23 @@ void TutorialGame::UpdateGame(float dt) {
 		physics->Update(dt);
 		
 		renderer->DrawString("Score: " + std::to_string(p->GetScore()), Vector2(10, 20));
+		score = p->GetScore();
 		k->keeperStateMachine->Update();
 		Debug::FlushRenderables();
 		renderer->Render();
 		break;
 	case MenuType::gameOver:
-		renderer->DrawString("GameOver and your Score: " + std::to_string(p->GetScore()), Vector2(10, 20));
+		
+		
+		InitCamera();
+		InitWorld();
+		world->UpdateWorld(dt);
+		renderer->DrawString("GameOver and your Score: " + std::to_string(score), Vector2(10, 20));
 		renderer->Render();
 		break;
+	case MenuType::pause:
+		renderer->DrawString("pause" , Vector2(10, 20));
+		renderer->Render();
 	}
 }
 

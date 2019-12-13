@@ -13,7 +13,7 @@ using namespace NCL;
 using namespace CSC8503;
 
 PhysicsSystem::PhysicsSystem(GameWorld& g) : gameWorld(g)	{
-	applyGravity	= false;
+	applyGravity	= true;
 	useBroadPhase	= false;	
 	dTOffset		= 0.0f;
 	globalDamping	= 0.95f;
@@ -176,7 +176,7 @@ void PhysicsSystem::BasicCollisionDetection() {
 				//std::cout << " Collision between " << (*i)->GetName() << " and " << (*j)->GetName() << std::endl;
 				if ((*i)->GetName() == "water" || (*j)->GetName() == "water") {
 					PenaltyResolveCollision(*info.a, *info.b, info.point);
-					std::cout << "water" << std::endl;
+					//std::cout << "water" << std::endl;
 				}
 				else {
 					ImpulseResolveCollision(*info.a, *info.b, info.point);
