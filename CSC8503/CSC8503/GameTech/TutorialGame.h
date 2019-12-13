@@ -6,6 +6,9 @@
 #include "../CSC8503Common/PushdownMachine.h"
 #include "../CSC8503Common/PushdownState.h"
 
+#include "../CSC8503Common/GameServer.h"
+#include "../CSC8503Common/GameClient.h"
+
 
 namespace NCL {
 	namespace CSC8503 {
@@ -18,6 +21,8 @@ namespace NCL {
 			virtual void UpdateGame(float dt);
 			MenuPushdownMachine* menu;
 			GameObject* apple;
+			GameServer* server;
+			GameClient* client;
 
 		protected:
 			void InitialiseAssets();
@@ -44,6 +49,8 @@ namespace NCL {
 			void DebugObjectMovement();
 			void LockedObjectMovement();
 			void LockedCameraMovement();
+			void InitNetwork();
+			void SendScore();
 
 			GameObject* AddFloorToWorld(const Vector3& position);
 			GameObject* AddIslandToWorld(const Vector3& position);

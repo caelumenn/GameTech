@@ -14,7 +14,11 @@ TutorialGame::TutorialGame()	{
 	world		= new GameWorld();
 	renderer	= new GameTechRenderer(*world);
 	physics		= new PhysicsSystem(*world);
-	apple = nullptr;
+	apple = nullptr; 
+
+	NetworkBase::Initialise();
+	/*server = nullptr;
+	client = nullptr;*/
 
 	forceMagnitude	= 10.0f;
 	useGravity		= false;
@@ -23,6 +27,47 @@ TutorialGame::TutorialGame()	{
 	Debug::SetRenderer(renderer);
 
 	InitialiseAssets();
+}
+
+class TestPacketReceiver : public PacketReceiver {
+public:
+	TestPacketReceiver(string name) {
+		this->name = name;
+	}
+
+	void ReceivePacket(int type, GamePacket* payload, int source) {
+		if (type == String_Message) {
+			StringPacket* realPacket = (StringPacket*)payload;
+			string msg = realPacket->GetStringFromData();
+			std::cout << name << " received message : " << msg << std::endl;
+		}
+	}
+protected:
+	string name;
+};
+
+void TutorialGame::InitNetwork() {
+	
+	TestPacketReceiver* serverReceiver = new TestPacketReceiver("Server");
+	TestPacketReceiver* clientReceiver = new TestPacketReceiver("Client");
+
+	int port = NetworkBase::GetDefaultPort();
+	server = new GameServer(port, 1);
+	client = new GameClient();
+
+	server->RegisterPacketHandler(String_Message, serverReceiver);
+	client->RegisterPacketHandler(String_Message, clientReceiver);
+
+	bool canConnect = client->Connect(127, 0, 0, 1, port);
+	/*for (int i = 0; i < 5; i++) {
+		server->SendGlobalPacket(StringPacket("Hello from the server side!"));
+		client->SendPacket(StringPacket("Hello from the client side!"));
+		server->UpdateServer();
+		client->UpdateClient();
+		std::this_thread::sleep_for(std::chrono::milliseconds(10));
+	}*/
+
+	
 }
 
 /*
@@ -52,6 +97,7 @@ void TutorialGame::InitialiseAssets() {
 
 	InitCamera();
 	InitWorld();
+	InitNetwork();
 }
 
 TutorialGame::~TutorialGame()	{
@@ -64,6 +110,7 @@ TutorialGame::~TutorialGame()	{
 	delete physics;
 	delete renderer;
 	//delete world;
+	NetworkBase::Destroy();
 }
 
 void TutorialGame::UpdateGame(float dt) {
@@ -72,14 +119,18 @@ void TutorialGame::UpdateGame(float dt) {
 	MenuType menuType = menu->GetActiveStateType();
 	ParkKeeper* k = (ParkKeeper*)world->GetKeeper();
 	PlayerGoose* p = (PlayerGoose*)world->GetPlayer();
+	server->UpdateServer();
+	client->UpdateClient();
 	switch (menuType) {
 	case MenuType::mainMenu:
 		renderer->DrawString("press space to start game", Vector2(10, 60));
 		renderer->Render();
+		
 		break;
 	case MenuType::play:
 		lockedObject = world->GetPlayer();
 		LockedCameraMovement();
+		
 		apple->GetPhysicsObject()->AddTorque(Vector3(-10, 0, 0));
 		UpdateKeys();
 		/*if (useGravity) {
@@ -142,6 +193,9 @@ void TutorialGame::UpdateKeys() {
 	}
 	if (Window::GetKeyboard()->KeyPressed(KeyboardKeys::F8)) {
 		world->ShuffleObjects(false);
+	}
+	if (Window::GetKeyboard()->KeyPressed(KeyboardKeys::M)) {
+		SendScore();
 	}
 
 	if (lockedObject) {
@@ -229,6 +283,11 @@ void TutorialGame::LockedObjectMovement() {
 		}
 		lockedObject->GetTransform().SetLocalOrientation(or);
 	}
+}
+
+void TutorialGame::SendScore() {
+	PlayerGoose* p = (PlayerGoose*)world->GetPlayer();
+	server->SendGlobalPacket(StringPacket("Now, my score is " + std::to_string(p->GetScore())));
 }
 
 void  TutorialGame::LockedCameraMovement() {
