@@ -97,12 +97,11 @@ void TutorialGame::UpdateGame(float dt) {
 		renderer->Render();
 		break;
 	case MenuType::gameOver:
-		
-		
 		InitCamera();
 		InitWorld();
 		world->UpdateWorld(dt);
-		renderer->DrawString("GameOver and your Score: " + std::to_string(score), Vector2(10, 20));
+		renderer->DrawString(" GameOver and your Score: " + std::to_string(score), Vector2(10, 40));
+		renderer->DrawString(" Press R to go back to mainMenu", Vector2(10, 20));
 		renderer->Render();
 		break;
 	case MenuType::pause:
