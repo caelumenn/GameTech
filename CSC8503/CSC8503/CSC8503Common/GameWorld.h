@@ -88,6 +88,7 @@ namespace NCL {
 			QuadTree<GameObject*>* quadTree;
 			GameObject* player;
 			GameObject* keeper;
+		
 			Camera* mainCamera;
 
 			bool shuffleConstraints;

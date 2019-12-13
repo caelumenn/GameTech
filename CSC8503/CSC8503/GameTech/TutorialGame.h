@@ -17,6 +17,7 @@ namespace NCL {
 			int score = 0;
 			virtual void UpdateGame(float dt);
 			MenuPushdownMachine* menu;
+			GameObject* apple;
 
 		protected:
 			void InitialiseAssets();

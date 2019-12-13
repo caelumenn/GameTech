@@ -14,6 +14,7 @@ TutorialGame::TutorialGame()	{
 	world		= new GameWorld();
 	renderer	= new GameTechRenderer(*world);
 	physics		= new PhysicsSystem(*world);
+	apple = nullptr;
 
 	forceMagnitude	= 10.0f;
 	useGravity		= false;
@@ -79,6 +80,7 @@ void TutorialGame::UpdateGame(float dt) {
 	case MenuType::play:
 		lockedObject = world->GetPlayer();
 		LockedCameraMovement();
+		apple->GetPhysicsObject()->AddTorque(Vector3(-10, 0, 0));
 		UpdateKeys();
 		/*if (useGravity) {
 			Debug::Print("(G)ravity on", Vector2(10, 40));
@@ -386,7 +388,7 @@ void TutorialGame::InitWorld() {
 	PlayerGoose* player = AddPlayerGooseToWorld(Vector3(0, 2, 0));
 	world->SetPlayer((GameObject*)player);
 
-	AddAppleToWorld(Vector3(35, 2, 0));
+	apple = AddAppleToWorld(Vector3(35, 2, 0));
 
 	ParkKeeper* keeper = AddParkKeeperToWorld(Vector3(25, 5, 50));
 	world->SetKeeper((GameObject*)keeper);
@@ -520,7 +522,7 @@ GameObject* TutorialGame::AddCubeToWorld(const Vector3& position, Vector3 dimens
 
 PlayerGoose* TutorialGame::AddPlayerGooseToWorld(const Vector3& position) {
 	float size = 1.0f;
-	float inverseMass = 1.0f;
+	float inverseMass = 0.8f;
 
 	PlayerGoose* goose = new PlayerGoose("goose");
 	SphereVolume* volume = new SphereVolume(size);
